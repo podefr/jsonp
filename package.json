@@ -1,0 +1,32 @@
+{
+ "name": "jsonp-utils",
+ "description": "jsonp utils for fetching data using jsonp",
+ "version": "0.0.1",
+ "homepage": "https://github.com/podefr/jsonp",
+ "licenses": [{
+  "type":"MIT",
+  "url":"https://github.com/podefr/jsonp/blob/master/LICENSE"
+ }],
+ "files": [
+ 	"LICENSE",
+ 	"jsonp-utils.min.js",
+ 	"jsonp-utils-browser.js"
+ ],
+ "devDependencies": {
+ 	"chai": ">=1.8.1",
+ 	"sinon": ">=1.7.3"
+ },
+ "author": "Olivier Scherrer <pode.fr@gmail.com>",
+ "keywords": ["jsonp", "utils"],
+ "repository": {
+  "type": "git",
+  "url": "git@github.com:podefr/jsonp.git"
+ },
+ "bugs": {
+  "url": "https://github.com/podefr/jsonp/issues"
+ },
+ "main":"jsonp-utils.min.js",
+ "scripts": {
+ 	"test": "mocha"
+ }
+}
