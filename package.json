@@ -12,6 +12,9 @@
  	"jsonp-utils.min.js",
  	"jsonp-utils-browser.js"
  ],
+ "dependencies": {
+ 	"script-utils": ">=0.0.3"
+ },
  "devDependencies": {
  	"chai": ">=1.8.1",
  	"sinon": ">=1.7.3"
