@@ -1,5 +1,5 @@
 /**
- * jsonp-utils.js - http://podefr.github.com/jsonp/
+ * jsonp-utils.js - https://github.com/podefr/jsonp
  * Copyright(c) 2013 Olivier Scherrer <pode.fr@gmail.com>
  * MIT Licensed
  */
