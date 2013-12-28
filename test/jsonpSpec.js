@@ -3,8 +3,8 @@
  * Copyright(c) 2013 Olivier Scherrer <pode.fr@gmail.com>
  * MIT Licensed
  */
-require("./wrappers");
-require("./fakeDocument");
+require("bdd-wrappers");
+require("quick-dom");
 
 var chai = require("chai"),
 	sinon = require("sinon"),
