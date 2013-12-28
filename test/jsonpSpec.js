@@ -9,30 +9,42 @@ require("./fakeDocument");
 var chai = require("chai"),
 	sinon = require("sinon"),
 	expect = chai.expect,
-	proxyquire = require("proxyquire");
+	proxyquire = require("proxyquire").noCallThru();
 
-var scriptMock = sinon.mock({
-	create: function () {},
-	remove: function () {},
-	append: function () {}
-});
+var scriptMock = {
+	create: sinon.stub(),
+	remove: sinon.spy(),
+	append: sinon.spy()
+};
+
+var uuidMock = {
+	v4: sinon.stub()
+};
 
 var jsonp = proxyquire("../js/jsonp-utils", {
-	"script-utils": scriptMock
+	"script-utils": scriptMock,
+	"uuid": uuidMock
 });
 
 GIVEN("jsonp", function() {
 	WHEN("calling get", function () {
 		var url = "",
 			options = {},
-			callback = sinon.spy();
+			callback = sinon.spy(),
+			script = {};
 
 		beforeEach(function () {
+			scriptMock.create.returns(script);
+			uuidMock.v4.returns("unique-id");
 			jsonp.get(url, options, callback);
 		});
 
-		THEN("adds a script with the given url", function () {
+		THEN("creates a script with the given url", function () {
 			expect(scriptMock.create.called).to.be.true;
+		});
+
+		THEN("adds the script to head", function () {
+			expect(scriptMock.append.calledWith(script)).to.be.true;
 		});
 
 		THEN("generates a unique callback for receiving the jsonp data", function () {
