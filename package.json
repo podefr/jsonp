@@ -21,7 +21,7 @@
  	"sinon": ">=1.7.3",
  	"proxyquire": ">=0.5.2",
  	"jsdom": ">=0.8.10",
- 	"bdd-wrappers": ">=0.0.1",
+ 	"bdd-wrappers": ">=0.0.2",
  	"quick-dom": ">=0.0.1"
  },
  "author": "Olivier Scherrer <pode.fr@gmail.com>",
