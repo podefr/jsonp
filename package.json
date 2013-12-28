@@ -13,11 +13,14 @@
  	"jsonp-utils-browser.js"
  ],
  "dependencies": {
- 	"script-utils": ">=0.0.3"
+ 	"script-utils": ">=0.0.3",
+ 	"uuid": ">=1.4.1"
  },
  "devDependencies": {
  	"chai": ">=1.8.1",
- 	"sinon": ">=1.7.3"
+ 	"sinon": ">=1.7.3",
+ 	"proxyquire": ">=0.5.2",
+ 	"jsdom": ">=0.8.10"
  },
  "author": "Olivier Scherrer <pode.fr@gmail.com>",
  "keywords": ["jsonp", "utils"],

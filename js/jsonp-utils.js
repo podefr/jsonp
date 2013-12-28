@@ -5,5 +5,10 @@
  */
 "use strict";
 
+var script = require("script-utils");
+
 module.exports = {
+	get: function (url, options, callback) {
+		script.create(url);
+	}
 };
