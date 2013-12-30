@@ -153,3 +153,27 @@ describe("GIVEN default jsonp", function() {
 		});
 	});
 });
+
+describe("GIVEN preconfigured JSONP", function () {
+	var jsonp = null;
+
+	beforeEach(function () {
+		jsonp = new Jsonp({
+			callbackName: "jsonpcallback",
+			timeout: 30000,
+			url: "url"
+		});
+	});
+
+	it("THEN timeout is updated", function () {
+		expect(jsonp.getTimeout()).to.equal(30000);
+	});
+
+	it("THEN the name of the callback is updated", function () {
+		expect(jsonp.getCallbackName()).to.equal("jsonpcallback");
+	});
+
+	it("THEN the url is updated", function () {
+		expect(jsonp.getUrl()).to.equal("url");
+	});
+});

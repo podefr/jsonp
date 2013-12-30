@@ -9,11 +9,12 @@ var scriptUtils = require("script-utils"),
 	uuidGenerator = require("uuid"),
 	querystring = require("querystring");
 
-module.exports = function Jsonp() {
+module.exports = function Jsonp(params) {
 
-	var _timeout = 15000,
-		_callbackName = "callback",
-		_url = "";
+	var params = params || {},
+		_timeout = params.timeout || 15000,
+		_callbackName = params.callbackName || "callback",
+		_url = params.url || "";
 
 	this.getTimeout = function getTimeout() {
 		return _timeout;
@@ -74,5 +75,6 @@ module.exports = function Jsonp() {
 			delete window[uuid];
 		};
 	}
+
 };
 
