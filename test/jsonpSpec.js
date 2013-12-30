@@ -72,7 +72,9 @@ describe("GIVEN default jsonp", function() {
 		describe("WHEN calling get", function () {
 			var options = {},
 				callback = sinon.spy(),
-				script = {};
+				script = {},
+				clock = null,
+				promise = null;
 
 			beforeEach(function () {
 				sinon.stub(scriptMock, "create").returns(script);
@@ -80,7 +82,8 @@ describe("GIVEN default jsonp", function() {
 				sinon.spy(scriptMock, "remove");
 				uuidMock.v4.returns("unique-id");
 				sinon.stub(querystringMock, "stringify").returns("callback=unique-id");
-				jsonp.get(options, callback);
+				clock = sinon.useFakeTimers();
+				promise = jsonp.get(options, callback);
 			});
 
 			afterEach(function () {
@@ -88,6 +91,7 @@ describe("GIVEN default jsonp", function() {
 				scriptMock.append.restore();
 				scriptMock.remove.restore();
 				querystringMock.stringify.restore();
+				clock.restore();
 			});
 
 			it("THEN creates a script with the provided url", function () {
@@ -101,6 +105,10 @@ describe("GIVEN default jsonp", function() {
 
 			it("THEN generates a unique callback to receive the jsonp data", function () {
 				expect(typeof window["unique-id"]).to.equal("function");
+			});
+
+			it("THEN returns a promise", function () {
+				expect(typeof promise.then).to.equal("function");
 			});
 
 			describe("WHEN options are provided", function () {
@@ -124,17 +132,47 @@ describe("GIVEN default jsonp", function() {
 				});
 			});
 
+			describe("WHEN the timer expires before the script is loaded", function () {
+				var error = null;
+				beforeEach(function () {
+					callback.reset();
+					clock.tick(30000);
+					error = callback.args[0][0];
+				});
+
+				it("THEN calls the callback with a timeout error", function () {
+					expect(error instanceof Error).to.be.true;
+					expect(error.message).to.equal("Timeout after 30000 ms");
+				});
+
+				it("THEN removes the script from head", function () {
+					expect(scriptMock.remove.calledWith(script)).to.be.true;
+				});
+
+				it("THEN removes the unique callback", function () {
+					expect(window["unique-id"]).to.be.undefined;
+				});
+
+				it("THEN rejects the promise with the same error", function () {
+					expect(promise.getReason()).to.equal(error);
+				});
+			});
+
 			describe("WHEN the unique callback is called with the data", function () {
 				beforeEach(function () {
 					window["unique-id"](1, 2, 3);
 				});
 
 				it("THEN calls the provided callback with the data", function () {
-					expect(callback.calledWith(1, 2, 3)).to.be.true;
+					expect(callback.calledWith(null, 1, 2, 3)).to.be.true;
 				});
 
 				it("THEN removes the unique callback", function () {
 					expect(window["unique-id"]).to.be.undefined;
+				});
+
+				it("THEN fulfills the promise with the same data", function () {
+					expect(promise.getValue()).to.equal(1, 2, 3);
 				});
 			});
 

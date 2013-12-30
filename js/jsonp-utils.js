@@ -7,14 +7,48 @@
 
 var scriptUtils = require("script-utils"),
 	uuidGenerator = require("uuid"),
-	querystring = require("querystring");
+	querystring = require("querystring"),
+	Promise = require("Emily").requirejs("Promise");
 
+/**
+ * new Jsonp() creates a Jsonp component that can hit the same url
+ * with different options and different callbacks. It accepts a timeout
+ * that expires after n milliseconds if no data was loaded in the interval.
+ * It also requires the name of the url param to specify to customise the callback name.
+ *
+ * Example:
+ * ========
+ *
+ * var jsonp = new Jsonp({
+ *		callbackName: "jsonpcallback", 		// the name of the param to customise the callback name
+ *		timeout: 30000, 					// the number of milliseconds before the request expires
+ *		url: "http://api.somewebsite.com/"  // the url to the jsonp service
+ *	});
+ *
+ * Make a jsonp request:
+ * =====================
+ *
+ * 1/ By giving a callback with the following signature :
+ * ------------------------------------------------------
+ *
+ * function callback(error, data) { if (error) {} }
+ *
+ * jsonp.get({ method: "method", id: "id" }, callback, scope);
+ *
+ * 2/ By hooking to the returned A+ promise
+ * ----------------------------------------
+ *
+ * jsonp.get({ method: "method", id: "id" }).then(onError, onSuccess);
+ *
+ */
 module.exports = function Jsonp(params) {
 
-	var params = params || {},
-		_timeout = params.timeout || 15000,
+	params = params || {};
+
+	var _timeout = params.timeout || 15000,
 		_callbackName = params.callbackName || "callback",
-		_url = params.url || "";
+		_url = params.url || "",
+		_timers = {};
 
 	this.getTimeout = function getTimeout() {
 		return _timeout;
@@ -42,15 +76,31 @@ module.exports = function Jsonp(params) {
 
 	this.get = function get(options, callback, scope) {
 		var	uuid = getUniqueId(),
+			promise = new Promise(),
 			serializedOptions = serializeOptions(addCallbackName(options, uuid)),
 			script = scriptUtils.create(prepareUrl(_url, serializedOptions), function () {
 				scriptUtils.remove(script);
 			});
 
-		createUniqueCallback(uuid, callback, scope);
+		createUniqueCallback(uuid, callback, scope, promise);
 		scriptUtils.append(script);
-		//startTimer(uuid, )
+		startTimer(uuid, script, callback, scope, promise);
+		return promise;
 	};
+
+	function startTimer(uuid, script, callback, scope, promise) {
+		_timers[uuid] = setTimeout(function () {
+			var error = new Error("Timeout after " + _timeout + " ms");
+			callback.call(scope, error);
+			promise.reject(error);
+			delete window[uuid];
+			scriptUtils.remove(script);
+		}, _timeout);
+	}
+
+	function clearTimer(uuid) {
+		clearTimeout(_timers[uuid]);
+	}
 
 	function getUniqueId() {
 		return uuidGenerator.v4();
@@ -69,12 +119,13 @@ module.exports = function Jsonp(params) {
 		return url + "?" + options;
 	}
 
-	function createUniqueCallback(uuid, callback, scope) {
+	function createUniqueCallback(uuid, callback, scope, promise) {
 		window[uuid] = function () {
-			callback.apply(scope, arguments);
+			callback.apply(scope, [null].concat([].slice.call(arguments)));
+			promise.fulfill.apply(promise, arguments);
+			clearTimer(uuid);
 			delete window[uuid];
 		};
 	}
-
 };
 
