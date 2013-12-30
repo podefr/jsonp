@@ -71,6 +71,7 @@ describe("GIVEN initialised jsonp", function() {
 		beforeEach(function () {
 			sinon.stub(scriptMock, "create").returns(script);
 			sinon.spy(scriptMock, "append");
+			sinon.spy(scriptMock, "remove");
 			uuidMock.v4.returns("unique-id");
 			sinon.stub(querystringMock, "stringify").returns("callback=unique-id");
 			jsonp.get("url", options, callback);
@@ -79,6 +80,7 @@ describe("GIVEN initialised jsonp", function() {
 		afterEach(function () {
 			scriptMock.create.restore();
 			scriptMock.append.restore();
+			scriptMock.remove.restore();
 			querystringMock.stringify.restore();
 		});
 
@@ -93,6 +95,27 @@ describe("GIVEN initialised jsonp", function() {
 
 		it("THEN generates a unique callback to receive the jsonp data", function () {
 			expect(typeof window["unique-id"]).to.equal("function");
+		});
+
+		describe("WHEN options are provided", function () {
+			beforeEach(function () {
+				scriptMock.create.reset();
+				querystringMock.stringify.returns("stringified");
+				jsonp.get("url", options, callback);
+			});
+			it("THEN serializes the options", function () {
+				expect(scriptMock.create.args[0][0]).to.equal("url?stringified");
+			});
+		});
+
+		describe("WHEN the script is loaded", function () {
+			beforeEach(function () {
+				scriptMock.create.args[0][1]();
+			});
+
+			it("THEN removes the script from head", function () {
+				expect(scriptMock.remove.calledWith(script)).to.be.true;
+			});
 		});
 
 		describe("WHEN the unique callback is called with the data", function () {
@@ -121,33 +144,5 @@ describe("GIVEN initialised jsonp", function() {
 				expect(callback.calledOn(scope)).to.be.true;
 			});
 		});
-
-		describe("WHEN options are provided", function () {
-			beforeEach(function () {
-				scriptMock.create.reset();
-				querystringMock.stringify.returns("stringified");
-				jsonp.get("url", options, callback);
-			});
-			it("THEN serializes the options", function () {
-				expect(scriptMock.create.args[0][0]).to.equal("url?stringified");
-			});
-		});
-
-		describe("WHEN the data is loaded", function () {
-			it("THEN calls the provided callback with that data", function () {
-
-			});
-
-			describe("WHEN a scope is given", function () {
-				it("THEN calls the callback in that scope", function () {
-
-				});
-			});
-
-			it("THEN removes the script", function () {
-
-			});
-		});
 	});
-
 });
