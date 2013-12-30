@@ -12,7 +12,8 @@ var scriptUtils = require("script-utils"),
 module.exports = function Jsonp() {
 
 	var _timeout = 15000,
-		_callbackName = "callback";
+		_callbackName = "callback",
+		_url = "";
 
 	this.getTimeout = function getTimeout() {
 		return _timeout;
@@ -30,10 +31,18 @@ module.exports = function Jsonp() {
 		return _callbackName;
 	};
 
-	this.get = function get(url, options, callback, scope) {
+	this.setUrl = function setUrl(url) {
+		_url = url;
+	};
+
+	this.getUrl = function getUrl() {
+		return _url;
+	};
+
+	this.get = function get(options, callback, scope) {
 		var	uuid = getUniqueId(),
 			serializedOptions = serializeOptions(addCallbackName(options, uuid)),
-			script = scriptUtils.create(prepareUrl(url, serializedOptions), function () {
+			script = scriptUtils.create(prepareUrl(_url, serializedOptions), function () {
 				scriptUtils.remove(script);
 			});
 
