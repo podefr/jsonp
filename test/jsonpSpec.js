@@ -3,7 +3,7 @@
  * Copyright(c) 2013 Olivier Scherrer <pode.fr@gmail.com>
  * MIT Licensed
  */
-require("bdd-wrappers");
+//require("bdd-wrappers");
 require("quick-dom");
 
 var chai = require("chai"),
@@ -21,44 +21,49 @@ var uuidMock = {
 	v4: sinon.stub()
 };
 
+var querystringMock = {
+	stringify: function () {}
+};
+
 var Jsonp = proxyquire("../js/jsonp-utils", {
 	"script-utils": scriptMock,
-	"uuid": uuidMock
+	"uuid": uuidMock,
+	"querystring": querystringMock
 });
 
-GIVEN("initialised jsonp", function() {
+describe("GIVEN initialised jsonp", function() {
 	var jsonp = null;
 
 	beforeEach(function () {
 		jsonp = new Jsonp();
 	});
 
-	WHEN("configuration is default", function () {
-		THEN("jsonp requests are set to timeout after 15s", function () {
+	describe("WHEN configuration is default", function () {
+		it("THEN jsonp requests are set to timeout after 15s", function () {
 			expect(jsonp.getTimeout()).to.equal(15000);
 		});
 
-		THEN("the default name for the jsonp is callback", function () {
+		it("THEN the default name for the jsonp is callback", function () {
 			expect(jsonp.getCallbackName()).to.equal("callback");
 		});
 
-		WHEN("reconfigured", function () {
+		describe("WHEN reconfigured", function () {
 			beforeEach(function () {
 				jsonp.setTimeout(30000);
 				jsonp.setCallbackName("jsonpcallback");
 			});
 
-			THEN("timeout is updated", function () {
+			it("THEN timeout is updated", function () {
 				expect(jsonp.getTimeout()).to.equal(30000);
 			});
 
-			THEN("the name of the callback is updated", function () {
+			it("THEN the name of the callback is updated", function () {
 				expect(jsonp.getCallbackName()).to.equal("jsonpcallback");
 			});
 		});
 	});
 
-	WHEN("calling get", function () {
+	describe("WHEN calling get", function () {
 		var options = {},
 			callback = sinon.spy(),
 			script = {};
@@ -67,45 +72,79 @@ GIVEN("initialised jsonp", function() {
 			sinon.stub(scriptMock, "create").returns(script);
 			sinon.spy(scriptMock, "append");
 			uuidMock.v4.returns("unique-id");
+			sinon.stub(querystringMock, "stringify").returns("callback=unique-id");
 			jsonp.get("url", options, callback);
 		});
 
 		afterEach(function () {
 			scriptMock.create.restore();
 			scriptMock.append.restore();
+			querystringMock.stringify.restore();
 		});
 
-		THEN("creates a script with the given url", function () {
+		it("THEN creates a script with the provided url", function () {
 			expect(scriptMock.create.called).to.be.true;
 			expect(scriptMock.create.args[0][0]).to.equal("url?callback=unique-id");
 		});
 
-		THEN("adds the script to head", function () {
+		it("THEN adds the script to head", function () {
 			expect(scriptMock.append.calledWith(script)).to.be.true;
 		});
 
-		THEN("generates a unique callback for receiving the jsonp data", function () {
+		it("THEN generates a unique callback to receive the jsonp data", function () {
 			expect(typeof window["unique-id"]).to.equal("function");
 		});
 
-		WHEN("options are given", function () {
-			THEN("serializes the options", function () {
+		describe("WHEN the unique callback is called with the data", function () {
+			beforeEach(function () {
+				window["unique-id"](1, 2, 3);
+			});
 
+			it("THEN calls the provided callback with the data", function () {
+				expect(callback.calledWith(1, 2, 3)).to.be.true;
+			});
+
+			it("THEN removes the unique callback", function () {
+				expect(window["unique-id"]).to.be.undefined;
 			});
 		});
 
-		WHEN("the data is loaded", function () {
-			THEN("calls the given callback with that data", function () {
+		describe("WHEN a scope is provided with the callback", function () {
+			var scope = {};
+
+			beforeEach(function () {
+				jsonp.get("url", options, callback, scope);
+				window["unique-id"]();
+			});
+
+			it("THEN calls the callback within the scope", function () {
+				expect(callback.calledOn(scope)).to.be.true;
+			});
+		});
+
+		describe("WHEN options are provided", function () {
+			beforeEach(function () {
+				scriptMock.create.reset();
+				querystringMock.stringify.returns("stringified");
+				jsonp.get("url", options, callback);
+			});
+			it("THEN serializes the options", function () {
+				expect(scriptMock.create.args[0][0]).to.equal("url?stringified");
+			});
+		});
+
+		describe("WHEN the data is loaded", function () {
+			it("THEN calls the provided callback with that data", function () {
 
 			});
 
-			WHEN("a scope is given", function () {
-				THEN("calls the callback in that scope", function () {
+			describe("WHEN a scope is given", function () {
+				it("THEN calls the callback in that scope", function () {
 
 				});
 			});
 
-			THEN("removes the script", function () {
+			it("THEN removes the script", function () {
 
 			});
 		});
