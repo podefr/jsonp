@@ -12,35 +12,72 @@ var chai = require("chai"),
 	proxyquire = require("proxyquire").noCallThru();
 
 var scriptMock = {
-	create: sinon.stub(),
-	remove: sinon.spy(),
-	append: sinon.spy()
+	create: function () {},
+	remove: function () {},
+	append: function () {}
 };
 
 var uuidMock = {
 	v4: sinon.stub()
 };
 
-var jsonp = proxyquire("../js/jsonp-utils", {
+var Jsonp = proxyquire("../js/jsonp-utils", {
 	"script-utils": scriptMock,
 	"uuid": uuidMock
 });
 
-GIVEN("jsonp", function() {
+GIVEN("initialised jsonp", function() {
+	var jsonp = null;
+
+	beforeEach(function () {
+		jsonp = new Jsonp();
+	});
+
+	WHEN("configuration is default", function () {
+		THEN("jsonp requests are set to timeout after 15s", function () {
+			expect(jsonp.getTimeout()).to.equal(15000);
+		});
+
+		THEN("the default name for the jsonp is callback", function () {
+			expect(jsonp.getCallbackName()).to.equal("callback");
+		});
+
+		WHEN("reconfigured", function () {
+			beforeEach(function () {
+				jsonp.setTimeout(30000);
+				jsonp.setCallbackName("jsonpcallback");
+			});
+
+			THEN("timeout is updated", function () {
+				expect(jsonp.getTimeout()).to.equal(30000);
+			});
+
+			THEN("the name of the callback is updated", function () {
+				expect(jsonp.getCallbackName()).to.equal("jsonpcallback");
+			});
+		});
+	});
+
 	WHEN("calling get", function () {
-		var url = "",
-			options = {},
+		var options = {},
 			callback = sinon.spy(),
 			script = {};
 
 		beforeEach(function () {
-			scriptMock.create.returns(script);
+			sinon.stub(scriptMock, "create").returns(script);
+			sinon.spy(scriptMock, "append");
 			uuidMock.v4.returns("unique-id");
-			jsonp.get(url, options, callback);
+			jsonp.get("url", options, callback);
+		});
+
+		afterEach(function () {
+			scriptMock.create.restore();
+			scriptMock.append.restore();
 		});
 
 		THEN("creates a script with the given url", function () {
 			expect(scriptMock.create.called).to.be.true;
+			expect(scriptMock.create.args[0][0]).to.equal("url?callback=unique-id");
 		});
 
 		THEN("adds the script to head", function () {
@@ -48,7 +85,7 @@ GIVEN("jsonp", function() {
 		});
 
 		THEN("generates a unique callback for receiving the jsonp data", function () {
-
+			expect(typeof window["unique-id"]).to.equal("function");
 		});
 
 		WHEN("options are given", function () {
