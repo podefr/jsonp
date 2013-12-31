@@ -43,37 +43,92 @@ var scriptUtils = require("script-utils"),
  */
 module.exports = function Jsonp(params) {
 
+	// in case no param is given
 	params = params || {};
 
+	/**
+	 * Timeout after which the jsonp request expires
+	 * @type Number
+	 * @private
+	 */
 	var _timeout = params.timeout || 15000,
-		_callbackName = params.callbackName || "callback",
-		_url = params.url || "",
-		_timers = {};
 
+	/**
+	 * The name of param to specify the callback name
+	 * @type String
+	 * @private
+	 */
+	_callbackName = params.callbackName || "callback",
+
+	/**
+	 * The url to hit to do the jsonp request
+	 * @type String
+	 * @private
+	 */
+	_url = params.url || "",
+
+	/**
+	 * The uuid - timeout id map
+	 * @type Object
+	 * @private
+	 */
+	_timers = {};
+
+	/**
+	 * Get the current value of the timeout after which the jsonp request expires
+	 * @returns Number
+	 */
 	this.getTimeout = function getTimeout() {
 		return _timeout;
 	};
 
+	/**
+	 * Set the value of the timeout after which the jsonp request expires
+	 * @param {Number} timeout the time after which the callback expires
+	 */
 	this.setTimeout = function setTimeout(timeout) {
 		_timeout = timeout;
 	};
 
+	/**
+	 * Set the name of the param that specifies the callback name for receiving the data
+	 * @param {String} callbackName the name of the param
+	 */
 	this.setCallbackName = function setCallbackName(callbackName) {
 		_callbackName = callbackName
 	};
 
+	/**
+	 * Get name of the param that specifies the name of the callback to be executed
+	 * @returns String
+	 */
 	this.getCallbackName = function getCallbackName() {
 		return _callbackName;
 	};
 
+	/**
+	 * Set the url to hit to do the jsonp requests
+	 * @param {String} callbackName the name of the param
+	 */
 	this.setUrl = function setUrl(url) {
 		_url = url;
 	};
 
+	/**
+	 * Get the url that is hit to do the jsonp request
+	 * @returns {String} url
+	 */
 	this.getUrl = function getUrl() {
 		return _url;
 	};
 
+	/**
+	 * Actually do the JSONP request, url and callbackName have to be set first
+	 * @param {Object} options the options that are going to be serialized and added to the url
+	 * @param {function} callback [optional] the callback for the data
+	 * @param {Object} scope [optional] the scope in which to call the callback
+	 * @returns {Promise/A+} a promise/A+ that will be fulfilled/rejected
+	 */
 	this.get = function get(options, callback, scope) {
 		var	uuid = getUniqueId(),
 			deferred = vow.defer(),
