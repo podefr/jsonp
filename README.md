@@ -14,7 +14,7 @@ In the browser:
 ===============
 
 ```html
-<script src="jsonp-utils-browser"></script>;
+<script src="jsonp-utils-browser"></script>
 ```
 
 Usage:
