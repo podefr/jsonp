@@ -1,7 +1,7 @@
 {
  "name": "jsonp-utils",
- "description": "jsonp utils for fetching data using jsonp",
- "version": "0.0.1",
+ "description": "jsonp utils for fetching data using jsonp. Accepts a callback or returns a promise",
+ "version": "0.0.2",
  "homepage": "https://github.com/podefr/jsonp",
  "licenses": [{
   "type":"MIT",
