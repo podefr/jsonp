@@ -38,7 +38,6 @@ var jsonp = new Jsonp({
 });
 
 // Using the callback API
-
 jsonp.get({
 	method: "getUser",
 	id: "userId"
@@ -52,7 +51,6 @@ jsonp.get({
 
 
 // Using the promise API (vow promise)
-
 var promise = jsonp.get({
 	method: "getUser",
 	id: "userId"
