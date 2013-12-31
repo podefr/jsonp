@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<title>hey</title>
+		<script src="jsonp-utils-browser.js"></script>
+	</head>
+	<body>
+
+		<div class="example1"></div>
+		<div class="example2"></div>
+
+		<script type="text/javascript">
+			var Jsonp = require("jsonp-utils");
+
+			var jsonp = new Jsonp({
+				callbackName: "jsoncallback",
+				url: "http://www.flickr.com/services/rest/"
+			});
+
+			var request = {
+				method: "flickr.test.echo",
+				format: "json",
+				api_key: "a1faa53df9402fc5cc2d9746118f9ddc"
+			};
+
+			jsonp.get(request, function (err, data) {
+				this.innerHTML = JSON.stringify(data);
+			}, document.querySelector(".example1"));
+
+			var promise = jsonp.get(request);
+
+			promise.then(function (error) {
+				// on error...
+			}, function (data) {
+				document.querySelector(".example2").innerHTML = JSON.stringify(data);
+			});
+		</script>
+	</body>
+</html>
