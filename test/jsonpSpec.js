@@ -80,8 +80,8 @@ describe("GIVEN default jsonp", function() {
 				sinon.stub(scriptMock, "create").returns(script);
 				sinon.spy(scriptMock, "append");
 				sinon.spy(scriptMock, "remove");
-				uuidMock.v4.returns("unique-id");
-				sinon.stub(querystringMock, "stringify").returns("callback=unique-id");
+				uuidMock.v4.returns("uni-que-id");
+				sinon.stub(querystringMock, "stringify").returns("callback=_jsonp_uniqueid");
 				clock = sinon.useFakeTimers();
 				promise = jsonp.get(options, callback);
 			});
@@ -96,7 +96,7 @@ describe("GIVEN default jsonp", function() {
 
 			it("THEN creates a script with the provided url", function () {
 				expect(scriptMock.create.called).to.be.true;
-				expect(scriptMock.create.args[0][0]).to.equal("url?callback=unique-id");
+				expect(scriptMock.create.args[0][0]).to.equal("url?callback=_jsonp_uniqueid");
 			});
 
 			it("THEN adds the script to head", function () {
@@ -104,7 +104,7 @@ describe("GIVEN default jsonp", function() {
 			});
 
 			it("THEN generates a unique callback to receive the jsonp data", function () {
-				expect(typeof window["unique-id"]).to.equal("function");
+				expect(typeof window["_jsonp_uniqueid"]).to.equal("function");
 			});
 
 			it("THEN returns a promise", function () {
@@ -154,7 +154,7 @@ describe("GIVEN default jsonp", function() {
 				});
 
 				it("THEN removes the unique callback", function () {
-					expect(window["unique-id"]).to.be.undefined;
+					expect(window["_jsonp_uniqueid"]).to.be.undefined;
 				});
 
 				it("THEN rejects the promise with the same error", function () {
@@ -167,7 +167,7 @@ describe("GIVEN default jsonp", function() {
 				var value = null,
 					data = {};
 				beforeEach(function () {
-					window["unique-id"](data);
+					window["_jsonp_uniqueid"](data);
 					promise.then(function (val) {
 						value = val;
 					});
@@ -178,7 +178,7 @@ describe("GIVEN default jsonp", function() {
 				});
 
 				it("THEN removes the unique callback", function () {
-					expect(window["unique-id"]).to.be.undefined;
+					expect(window["_jsonp_uniqueid"]).to.be.undefined;
 				});
 
 				it("THEN fulfills the promise with the same data", function () {
@@ -191,7 +191,7 @@ describe("GIVEN default jsonp", function() {
 
 				beforeEach(function () {
 					jsonp.get(options, callback, scope);
-					window["unique-id"]();
+					window["_jsonp_uniqueid"]();
 				});
 
 				it("THEN calls the callback within the scope", function () {

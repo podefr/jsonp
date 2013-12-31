@@ -44,7 +44,7 @@ var scriptUtils = require("script-utils"),
 module.exports = function Jsonp(params) {
 
 	// in case no param is given
-	params = params || {};
+	params = params || {};
 
 	/**
 	 * Timeout after which the jsonp request expires
@@ -58,14 +58,14 @@ module.exports = function Jsonp(params) {
 	 * @type String
 	 * @private
 	 */
-	_callbackName = params.callbackName || "callback",
+	_callbackName = params.callbackName || "callback",
 
 	/**
 	 * The url to hit to do the jsonp request
 	 * @type String
 	 * @private
 	 */
-	_url = params.url || "",
+	_url = params.url || "",
 
 	/**
 	 * The uuid - timeout id map
@@ -158,7 +158,7 @@ module.exports = function Jsonp(params) {
 	}
 
 	function getUniqueId() {
-		return uuidGenerator.v4();
+		return "_jsonp_" + uuidGenerator.v4().replace(/-/g, "");
 	}
 
 	function addCallbackName(options, uuid) {
@@ -176,7 +176,7 @@ module.exports = function Jsonp(params) {
 
 	function createUniqueCallback(uuid, callback, scope, deferred) {
 		window[uuid] = function () {
-			callback.apply(scope, [null].concat([].slice.call(arguments)));
+			callback && callback.apply(scope, [null].concat([].slice.call(arguments)));
 			deferred.resolve.apply(deferred, arguments);
 			clearTimer(uuid);
 			delete window[uuid];
