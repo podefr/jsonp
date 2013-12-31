@@ -8,7 +8,7 @@
 var scriptUtils = require("script-utils"),
 	uuidGenerator = require("uuid"),
 	querystring = require("querystring"),
-	Promise = require("Emily").requirejs("Promise");
+	vow = require("vow");
 
 /**
  * new Jsonp() creates a Jsonp component that can hit the same url
@@ -76,23 +76,23 @@ module.exports = function Jsonp(params) {
 
 	this.get = function get(options, callback, scope) {
 		var	uuid = getUniqueId(),
-			promise = new Promise(),
+			deferred = vow.defer(),
 			serializedOptions = serializeOptions(addCallbackName(options, uuid)),
 			script = scriptUtils.create(prepareUrl(_url, serializedOptions), function () {
 				scriptUtils.remove(script);
 			});
 
-		createUniqueCallback(uuid, callback, scope, promise);
+		createUniqueCallback(uuid, callback, scope, deferred);
 		scriptUtils.append(script);
-		startTimer(uuid, script, callback, scope, promise);
-		return promise;
+		startTimer(uuid, script, callback, scope, deferred);
+		return deferred.promise();
 	};
 
-	function startTimer(uuid, script, callback, scope, promise) {
+	function startTimer(uuid, script, callback, scope, deferred) {
 		_timers[uuid] = setTimeout(function () {
 			var error = new Error("Timeout after " + _timeout + " ms");
 			callback.call(scope, error);
-			promise.reject(error);
+			deferred.reject(error);
 			delete window[uuid];
 			scriptUtils.remove(script);
 		}, _timeout);
@@ -119,10 +119,10 @@ module.exports = function Jsonp(params) {
 		return url + "?" + options;
 	}
 
-	function createUniqueCallback(uuid, callback, scope, promise) {
+	function createUniqueCallback(uuid, callback, scope, deferred) {
 		window[uuid] = function () {
 			callback.apply(scope, [null].concat([].slice.call(arguments)));
-			promise.fulfill.apply(promise, arguments);
+			deferred.resolve.apply(deferred, arguments);
 			clearTimer(uuid);
 			delete window[uuid];
 		};

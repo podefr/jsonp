@@ -15,7 +15,7 @@
  "dependencies": {
  	"script-utils": ">=0.0.3",
  	"uuid": ">=1.4.1",
- 	"emily": ">=1.8.1"
+ 	"vow": ">=0.4.0"
  },
  "devDependencies": {
  	"chai": ">=1.8.1",

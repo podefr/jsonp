@@ -133,11 +133,15 @@ describe("GIVEN default jsonp", function() {
 			});
 
 			describe("WHEN the timer expires before the script is loaded", function () {
-				var error = null;
+				var error = null,
+					reason = null;
 				beforeEach(function () {
 					callback.reset();
 					clock.tick(30000);
 					error = callback.args[0][0];
+					promise.then(function() {}, function onError(err) {
+						reason = err;
+					});
 				});
 
 				it("THEN calls the callback with a timeout error", function () {
@@ -154,17 +158,23 @@ describe("GIVEN default jsonp", function() {
 				});
 
 				it("THEN rejects the promise with the same error", function () {
-					expect(promise.getReason()).to.equal(error);
+					expect(reason instanceof Error).to.be.true;
+					expect(reason.message).to.equal("Timeout after 30000 ms");
 				});
 			});
 
 			describe("WHEN the unique callback is called with the data", function () {
+				var value = null,
+					data = {};
 				beforeEach(function () {
-					window["unique-id"](1, 2, 3);
+					window["unique-id"](data);
+					promise.then(function (val) {
+						value = val;
+					});
 				});
 
 				it("THEN calls the provided callback with the data", function () {
-					expect(callback.calledWith(null, 1, 2, 3)).to.be.true;
+					expect(callback.calledWith(null, data)).to.be.true;
 				});
 
 				it("THEN removes the unique callback", function () {
@@ -172,7 +182,7 @@ describe("GIVEN default jsonp", function() {
 				});
 
 				it("THEN fulfills the promise with the same data", function () {
-					expect(promise.getValue()).to.equal(1, 2, 3);
+					expect(value).to.equal(data);
 				});
 			});
 
