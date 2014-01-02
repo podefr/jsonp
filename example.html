@@ -28,10 +28,10 @@
 
 			var promise = jsonp.get(request);
 
-			promise.then(function (error) {
-				// on error...
-			}, function (data) {
+			promise.then(function (data) {
 				document.querySelector(".example2").innerHTML = JSON.stringify(data);
+			}, function (err) {
+				// on error
 			});
 		</script>
 	</body>
