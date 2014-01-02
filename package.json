@@ -22,7 +22,6 @@
  	"chai": ">=1.8.1",
  	"sinon": ">=1.7.3",
  	"proxyquire": ">=0.5.2",
- 	"jsdom": ">=0.8.10",
  	"bdd-wrappers": ">=0.0.3",
  	"quick-dom": ">=0.0.1"
  },
