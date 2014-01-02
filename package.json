@@ -10,7 +10,8 @@
  "files": [
  	"LICENSE",
  	"jsonp-utils.min.js",
- 	"jsonp-utils-browser.js"
+ 	"jsonp-utils-browser.js",
+ 	"jsonp-utils-browser.min.js"
  ],
  "dependencies": {
  	"script-utils": ">=0.0.3",
