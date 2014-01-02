@@ -11,8 +11,15 @@
 		<script type="text/javascript">
 			var Jsonp = require("jsonp-utils");
 
+			// create a new jsonp request broker
 			var jsonp = new Jsonp({
+				// requires the name of param to set to specify the callback name
 				callbackName: "jsoncallback",
+
+				// defaults to 15000
+			    timeout: 30000,
+
+			    // the url to hit
 				url: "http://www.flickr.com/services/rest/"
 			});
 
@@ -22,15 +29,17 @@
 				api_key: "a1faa53df9402fc5cc2d9746118f9ddc"
 			};
 
-			jsonp.get(request, function (err, data) {
+			// Using the callback API
+			jsonp.get(request, /* callback */ function (err, data) {
 				this.innerHTML = JSON.stringify(data);
-			}, document.querySelector(".example1"));
+			}, /* scope */ document.querySelector(".example1"));
 
+			// Using the promise API (vow promise)
 			var promise = jsonp.get(request);
 
-			promise.then(function (data) {
+			promise.then(function onSuccess(data) {
 				document.querySelector(".example2").innerHTML = JSON.stringify(data);
-			}, function (err) {
+			}, function onError(err) {
 				// on error
 			});
 		</script>

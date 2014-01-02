@@ -149,7 +149,7 @@ module.exports = function Jsonp(params) {
 	function startTimer(uuid, script, callback, scope, deferred) {
 		_timers[uuid] = setTimeout(function () {
 			var error = new Error("Timeout after " + _timeout + " ms");
-			callback.call(scope, error);
+			callback && callback.call(scope, error);
 			deferred.reject(error);
 			delete window[uuid];
 			scriptUtils.remove(script);

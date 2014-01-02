@@ -28,38 +28,33 @@ var Jsonp = require("jsonp-utils");
 // create a new jsonp request broker
 var jsonp = new Jsonp({
 	// requires the name of param to set to specify the callback name
-	callbackName: "jsonpcallback",
+	callbackName: "jsoncallback",
 
 	// defaults to 15000
-	timeout: 30000,
+    timeout: 30000,
 
-	// the url to hit
-	url: "http://api.service.com"
+    // the url to hit
+	url: "http://www.flickr.com/services/rest/"
 });
+
+var request = {
+	method: "flickr.test.echo",
+	format: "json",
+	api_key: "a1faa53df9402fc5cc2d9746118f9ddc"
+};
 
 // Using the callback API
-jsonp.get({
-	method: "getUser",
-	id: "userId"
-}, function (error, data) {
-	if (error) {
-		debug.error(error);
-	}
-
-	// do something with data
-}, scope);
-
+jsonp.get(request, /* callback */ function (err, data) {
+	this.innerHTML = JSON.stringify(data);
+}, /* scope */ document.querySelector(".example1"));
 
 // Using the promise API (vow promise)
-var promise = jsonp.get({
-	method: "getUser",
-	id: "userId"
-});
+var promise = jsonp.get(request);
 
-promise.then(function onError(error) {
-	// do something if error
-}, function onSuccess(data) {
-	// do something with data
+promise.then(function onSuccess(data) {
+	document.querySelector(".example2").innerHTML = JSON.stringify(data);
+}, function onError(err) {
+	// on error
 });
 ```
 
